@@ -1,8 +1,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/mman.h> 
+#include <fcntl.h>
+#include <unistd.h>
 
+struct keyRecord {
+    int key; 
+    int record[25]; 
+}; 
 
+struct keyRecord * records;
 /**
  * Takes two arguments -> an input file and an output file
  * The input file has records which are each 100 bytes: 
@@ -19,16 +27,20 @@ int main(int argc, char *argv[]) {
     int size = ftell(f); // get current file pointer
     fseek(f, 0, SEEK_SET); 
 
+    int fi = open(argv[1], O_RDONLY);
     int numRecords = size / 100; 
     printf("%d\n", size);
-    char buffer[size];
-    fread(buffer, 100, numRecords, f);
-
+    records = malloc(sizeof(struct keyRecord) * numRecords);
+    int *file = mmap(NULL, size, PROT_READ, MAP_SHARED, fi,0); 
+    printf("%d\n", file[0]);
     for (int i = 0; i < numRecords; i++){
-        printf("%ld\n", sizeof(buffer[i]));
-        // need to read in first four bytes and save in variable
-        // need to store that value in an array
-        // need to store key and record in hashtable
+        int key = file[0];
+        printf("%d\n", key);
+        records[i].key = key;
+        for (int j = 0; j < 25; j++){
+            records[i].record[j] = file[j];
+        }
+        file+= 25;
     }
 }
 
