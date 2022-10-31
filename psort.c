@@ -4,22 +4,22 @@
 #include <sys/mman.h> 
 #include <fcntl.h>
 #include <unistd.h>
+#include <pthread.h>
 
 struct keyRecord {
     int key; 
-    int record[25]; 
+    char *record; 
 }; 
 
 struct keyRecord * records;
+
+pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
+
 /**
- * Takes two arguments -> an input file and an output file
- * The input file has records which are each 100 bytes: 
- * We need to read in each 100 bytes into a data structure (maybe a dictionary) and store the first 4 bytes as 
- * the key and the total 100 bytes as the value
+* todo: set up checks for files + set up output to file
 */
 int main(int argc, char *argv[]) {
     FILE* f;
-    char ch;
  
     // Opening file in reading mode
     f = fopen(argv[1], "r");
@@ -29,21 +29,34 @@ int main(int argc, char *argv[]) {
 
     int fi = open(argv[1], O_RDONLY);
     int numRecords = size / 100; 
-    printf("%d\n", size);
     records = malloc(sizeof(struct keyRecord) * numRecords);
-    int *file = mmap(NULL, size, PROT_READ, MAP_SHARED, fi,0); 
-    printf("%d\n", file[0]);
+    char *file = (char *) mmap(NULL, size, PROT_READ, MAP_SHARED, fi,0); 
+
     for (int i = 0; i < numRecords; i++){
-        int key = file[0];
-        printf("%d\n", key);
+        int key = *((int *)file);
         records[i].key = key;
-        for (int j = 0; j < 25; j++){
+        records[i].record = malloc(sizeof(char) * 100);
+        for (int j = 0; j < 100; j++){
             records[i].record[j] = file[j];
         }
-        file+= 25;
+        file+= 100;
     }
+    pthread_t p1; 
+    pthread_t p2; 
+    pthread_t p3; 
+    pthread_t p4; 
+    pthread_create(&p1, NULL, mergeSort, (void*)0);
+    pthread_create(&p2, NULL, mergeSort, (void*)1);
+    pthread_create(&p3, NULL, mergeSort, (void*)2);
+    pthread_create(&p4, NULL, mergeSort, (void*)3);
+    
+
 }
 
 /**
- * Sort method - should it take a dictionary as input and output a dictionary too? 
+ * Method where the threads start
 */
+void* mergeSort(void* args){
+
+}
+
