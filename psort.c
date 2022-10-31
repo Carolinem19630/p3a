@@ -5,6 +5,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <pthread.h>
+#include <sys/sysinfo.h>
 
 struct keyRecord {
     int key; 
@@ -13,7 +14,15 @@ struct keyRecord {
 
 struct keyRecord * records;
 
-pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER; // lock for array of keyRecords
+
+int numThreads;
+/**
+ * Method where the threads start
+*/
+void* mergeSort(void* args){
+    int numThread = *(int*) args;
+}
 
 /**
 * todo: set up checks for files + set up output to file
@@ -42,23 +51,21 @@ int main(int argc, char *argv[]) {
         file+= 100;
     }
 
-    int numThreads = get_nprocs(); // get number of CPU cores
+    numThreads = get_nprocs();
     pthread_t p[numThreads];
+    printf("num threads: %d\n", numThreads);
+    int threadNum[numThreads];
     for (int i = 0; i < numThreads; i++){
-        pthread_create(&p[i], NULL, mergeSort, (void*)i);
+        threadNum[i] = i; 
+        if (pthread_create(&p[i], NULL, mergeSort, &threadNum[i]) != 0){
+             
+        }
     }
 
-    for (int i= 0; i < numThreads; i++){
-        pthread_join(p[i], NULL); // i'm not sure if the second arg should be NULL 
+    for (int j= 0; j < numThreads; j++){
+        pthread_join(p[j], NULL); 
     }
     
-
-}
-
-/**
- * Method where the threads start
-*/
-void* mergeSort(void* args){
 
 }
 
