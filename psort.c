@@ -41,14 +41,16 @@ int main(int argc, char *argv[]) {
         }
         file+= 100;
     }
-    pthread_t p1; 
-    pthread_t p2; 
-    pthread_t p3; 
-    pthread_t p4; 
-    pthread_create(&p1, NULL, mergeSort, (void*)0);
-    pthread_create(&p2, NULL, mergeSort, (void*)1);
-    pthread_create(&p3, NULL, mergeSort, (void*)2);
-    pthread_create(&p4, NULL, mergeSort, (void*)3);
+
+    int numThreads = get_nprocs(); // get number of CPU cores
+    pthread_t p[numThreads];
+    for (int i = 0; i < numThreads; i++){
+        pthread_create(&p[i], NULL, mergeSort, (void*)i);
+    }
+
+    for (int i= 0; i < numThreads; i++){
+        pthread_join(p[i], NULL); // i'm not sure if the second arg should be NULL 
+    }
     
 
 }
