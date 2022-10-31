@@ -76,20 +76,14 @@ void sort(int beg, int end)
 }
 
 /**
- * Method where the threads start
+ * Method where the threads start - set beginning and end for the curr thread
 */
 void* mergeSort(void* args){
     int numThread = *(int*) args;
 
     int beg = numRecords / numThreads * numThread;
     int end = (numRecords/numThreads) * (numThread + 1) -1;
-    int mid = (end - beg) / 2 + beg;
-    if (beg < end){
-        sort(beg, mid);
-        sort(mid + 1, end);
-        merge(beg, mid, end); 
-    }
-
+    sort(beg, end);
 }
 
 /**
