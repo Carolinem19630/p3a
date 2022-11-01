@@ -6,7 +6,11 @@
 #include <pthread.h>
 #include <sys/sysinfo.h>
 #include <string.h>
-
+/*
+*   Things that can still be improved: 1) Testing 2) Reallocating work to faster threads 3) Maybe merging the work of the threads? 
+*   4) Writing while sorting 5) To do a lot of these improvements I'm wondering if we need a different sorting algo - I think 
+*   merge sort makes a lot of sense but it's hard to reallocate work and it has a long critical section
+*/
 struct keyRecord {
     int key; 
     char *record; 
@@ -86,8 +90,8 @@ void* mergeSort(void* args){
     if(numThread + 1 == numThreads){
         end = numRecords - 1;
     }
-    printf("%d%d\n", beg, end);
     sort(beg, end);
+    return NULL;
 }
 
 /**
@@ -130,21 +134,17 @@ int main(int argc, char *argv[]) {
     for (int j= 0; j < numThreads; j++){
         pthread_join(p[j], NULL); 
     }
-    printf("%d%d\n", numThreads, numRecords);
     // merge all the threads' work - probably could be faster but I'm not sure how if # threads varies at all - it's rounding down is that bad?
     for (int k = 1; k < numThreads; k++){
         int end = (numRecords/numThreads) * (k + 1) -1;
         if(k + 1 == numThreads){
             end = numRecords - 1;
         }
-        printf("%d%d\n", end/2, end);
         merge(0, end/2, end);
     }
     merge(0, numRecords/2, numRecords); 
-    printf("%d%d\n", numRecords/2, numRecords);
     // write to file
     int fd = open(argv[2], O_WRONLY);
-    printf("%d\n", fd);
     lseek(fd, 0, SEEK_SET);
     char *map = (char *) mmap(NULL, size, PROT_WRITE, MAP_PRIVATE, fi,0); 
     if (map == MAP_FAILED)
@@ -155,9 +155,9 @@ int main(int argc, char *argv[]) {
     }
     for (int l = 0; l < numRecords; l++){
         memcpy(map, records[l].record, 100);
-        printf("record: %s\n", records[l].record);
         msync(map, 100, MS_SYNC);
         map +=100;
     }
+    fsync(fd);
     close(fd);
 }
