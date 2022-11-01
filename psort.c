@@ -1,11 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <sys/mman.h> 
 #include <fcntl.h>
 #include <unistd.h>
 #include <pthread.h>
 #include <sys/sysinfo.h>
+#include <string.h>
 
 struct keyRecord {
     int key; 
@@ -82,7 +82,11 @@ void* mergeSort(void* args){
     int numThread = *(int*) args;
 
     int beg = numRecords / numThreads * numThread;
-    int end = (numRecords/numThreads) * (numThread + 1) -1;
+    int end = ((numRecords)/numThreads) * (numThread + 1) -1;
+    if(numThread + 1 == numThreads){
+        end = numRecords - 1;
+    }
+    printf("%d%d\n", beg, end);
     sort(beg, end);
 }
 
@@ -126,8 +130,34 @@ int main(int argc, char *argv[]) {
     for (int j= 0; j < numThreads; j++){
         pthread_join(p[j], NULL); 
     }
-    
-    // todo: figure out how to merge all the threads' work
-
-    // todo: write records to file
+    printf("%d%d\n", numThreads, numRecords);
+    // merge all the threads' work - probably could be faster but I'm not sure how if # threads varies at all - it's rounding down is that bad?
+    for (int k = 1; k < numThreads; k++){
+        int end = (numRecords/numThreads) * (k + 1) -1;
+        if(k + 1 == numThreads){
+            end = numRecords - 1;
+        }
+        printf("%d%d\n", end/2, end);
+        merge(0, end/2, end);
+    }
+    merge(0, numRecords/2, numRecords); 
+    printf("%d%d\n", numRecords/2, numRecords);
+    // write to file
+    int fd = open(argv[2], O_WRONLY);
+    printf("%d\n", fd);
+    lseek(fd, 0, SEEK_SET);
+    char *map = (char *) mmap(NULL, size, PROT_WRITE, MAP_PRIVATE, fi,0); 
+    if (map == MAP_FAILED)
+    {
+        close(fd);
+        perror("Error mmapping the file");
+        exit(EXIT_FAILURE);
+    }
+    for (int l = 0; l < numRecords; l++){
+        memcpy(map, records[l].record, 100);
+        printf("record: %s\n", records[l].record);
+        msync(map, 100, MS_SYNC);
+        map +=100;
+    }
+    close(fd);
 }
