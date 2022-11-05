@@ -6,6 +6,7 @@
 #include <pthread.h>
 #include <sys/sysinfo.h>
 #include <string.h>
+#include <sys/types.h>
 /*
 *   Things that can still be improved: 1) Testing 2) Reallocating work to faster threads 3) Maybe merging the work of the threads? 
 *   4) Writing while sorting 5) To do a lot of these improvements I'm wondering if we need a different sorting algo - I think 
@@ -94,9 +95,6 @@ void* mergeSort(void* args){
     return NULL;
 }
 
-/**
-* todo: set up checks for files + set up output to file
-*/
 int main(int argc, char *argv[]) {
     FILE* f;
  
@@ -144,20 +142,24 @@ int main(int argc, char *argv[]) {
     }
     merge(0, numRecords/2, numRecords); 
     // write to file
-    int fd = open(argv[2], O_WRONLY);
-    lseek(fd, 0, SEEK_SET);
-    char *map = (char *) mmap(NULL, size, PROT_WRITE, MAP_PRIVATE, fi,0); 
-    if (map == MAP_FAILED)
-    {
-        close(fd);
-        perror("Error mmapping the file");
-        exit(EXIT_FAILURE);
+    int fd = open(argv[2], O_RDWR);
+    if (ftruncate(fd, 4096) == 0){
+        lseek(fd, 0, SEEK_SET);
+        char *map = (char *) mmap(NULL, (numRecords) *100, PROT_READ | PROT_WRITE, MAP_SHARED, fd,0); 
+        if (map == MAP_FAILED)
+        {
+            close(fd);
+            perror("Error mmapping the file");
+            exit(EXIT_FAILURE);
+        }
+        for (int l = 0; l < numRecords; l++){
+            memcpy(map, records[l].record, 100);
+            msync(map, 100, MS_SYNC);
+            if (l + 1 != numRecords){
+                map +=100;
+            }
+        }
+        fsync(fd);
     }
-    for (int l = 0; l < numRecords; l++){
-        memcpy(map, records[l].record, 100);
-        msync(map, 100, MS_SYNC);
-        map +=100;
-    }
-    fsync(fd);
     close(fd);
 }

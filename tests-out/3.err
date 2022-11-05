@@ -1,0 +1,1 @@
+/u/c/s/cs537-1/tests/tester/run-tests.sh: line 27: 650780 Segmentation fault      (core dumped) ./psort $TESTS_FOLDER/3.in $OUTPUT_FOLDER/3.out
