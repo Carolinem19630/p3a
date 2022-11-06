@@ -142,7 +142,7 @@ int main(int argc, char *argv[]) {
     }
     merge(0, numRecords/2, numRecords); 
     // write to file
-    int fd = open(argv[2], O_RDWR);
+    int fd = open(argv[2], O_RDWR, 0666);
     if (ftruncate(fd, 4096) == 0){
         lseek(fd, 0, SEEK_SET);
         char *map = (char *) mmap(NULL, (numRecords) *100, PROT_READ | PROT_WRITE, MAP_SHARED, fd,0); 
