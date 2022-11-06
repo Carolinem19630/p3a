@@ -70,8 +70,8 @@ void merge(int beg, int mid, int end)
 
 void sort(int beg, int end)
 {
+    int mid = beg + (end - beg) / 2;
     if (beg < end) {
-        int mid = beg + (end - beg) / 2;
  
         sort(beg, mid);
         sort(mid + 1, end);
@@ -99,12 +99,12 @@ int main(int argc, char *argv[]) {
     FILE* f;
  
     // Opening file in reading mode
-    f = fopen(argv[1], "r");
+    f = fopen(argv[1], "rb");
     fseek(f, 0, SEEK_END); // seek to end of file
     int size = ftell(f); // get current file pointer
     fseek(f, 0, SEEK_SET); 
 
-    int fi = open(argv[1], O_RDONLY);
+    int fi = open(argv[1], O_RDONLY, 0666);
     numRecords = size / 100; 
     records = malloc(sizeof(struct keyRecord) * numRecords);
     char *file = (char *) mmap(NULL, size, PROT_READ, MAP_SHARED, fi,0); 
