@@ -140,7 +140,6 @@ int main(int argc, char *argv[]) {
         }
         merge(0, end/2, end);
     }
-    merge(0, numRecords/2, numRecords); 
     // write to file
     int fd = open(argv[2], O_RDWR);
     if (ftruncate(fd, 4096) == 0){
