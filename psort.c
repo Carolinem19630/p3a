@@ -116,7 +116,7 @@ int main(int argc, char *argv[]) {
     fseek(f, 0, SEEK_END); // seek to end of file
     int size = ftell(f); // get current file pointer
     fseek(f, 0, SEEK_SET); 
-    int size = get_size(argv[1]);
+    //int size = get_size(argv[1]);
 
     int fi = open(argv[1], O_RDONLY, 0666);
     numRecords = size / 100; 
