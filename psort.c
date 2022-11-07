@@ -95,18 +95,18 @@ void* mergeSort(void* args){
     return NULL;
 }
 
-int get_size(char *f){
-    FILE *file = fopen(f, "r");
-    int size = 0;
-    char line[100];
+// int get_size(char *f){
+//     FILE *file = fopen(f, "r");
+//     int size = 0;
+//     char line[100];
     
-    while(fgets(line, 80, file) != NULL){
-        size+=1;
-    }
+//     while(fgets(line, 80, file) != NULL){
+//         size+=1;
+//     }
 
-    return size;
+//     return size;
 
-}
+// }
 
 int main(int argc, char *argv[]) {
     FILE* f;
@@ -114,7 +114,7 @@ int main(int argc, char *argv[]) {
     // Opening file in reading mode
     f = fopen(argv[1], "rb");
     fseek(f, 0, SEEK_END); // seek to end of file
-    //int size = ftell(f); // get current file pointer
+    int size = ftell(f); // get current file pointer
     fseek(f, 0, SEEK_SET); 
     int size = get_size(argv[1]);
 
