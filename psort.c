@@ -145,14 +145,15 @@ int main(int argc, char *argv[]) {
         pthread_join(p[j], NULL); 
     }
     // merge all the threads' work - probably could be faster but I'm not sure how if # threads varies at all - it's rounding down is that bad?
+    int mid = (numRecords/numThreads) -1;
     for (int k = 1; k < numThreads; k++){
         int end = (numRecords/numThreads) * (k + 1) -1;
         if(k + 1 == numThreads){
             end = numRecords - 1;
         }
-        merge(0, end/2, end);
+        merge(0, mid, end);
+        mid = end;
     }
-    //merge(0, numRecords/2, numRecords); 
     // write to file
     int fd = open(argv[2], O_RDWR | O_CREAT | O_TRUNC, 0666);
     if (ftruncate(fd, numRecords*100) == 0){
