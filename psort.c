@@ -19,7 +19,6 @@ struct keyRecord {
 
 struct keyRecord * records;
 
-pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER; // lock for array of keyRecords
 
 int numThreads;
 int numRecords;
@@ -41,7 +40,6 @@ void merge(int beg, int mid, int end)
     i = 0; 
     j = 0; 
     k = beg; 
-    pthread_mutex_lock(&lock);
     while (i < n1 && j < n2) {
         if (L[i].key <= R[j].key) {
             records[k] = L[i];
@@ -65,7 +63,6 @@ void merge(int beg, int mid, int end)
         j++;
         k++;
     }
-    pthread_mutex_unlock(&lock);
 }
 
 void sort(int beg, int end)
